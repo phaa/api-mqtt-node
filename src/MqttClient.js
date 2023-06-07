@@ -1,17 +1,14 @@
 import * as mqtt from "mqtt";
 
-export default class MqttClient {
+class MqttClient {
 
   constructor() {
     //mqtt://test.mosquitto.org
     this.client = mqtt.connect('mqtt://10.44.1.35');
-    this.sensor1 = 0;
-    this.sensor2 = 0;
   }
 
   initialize() {
     this.connect();
-    this.subscribe();
     this.configureMqttLoop();
   }
 
@@ -23,7 +20,6 @@ export default class MqttClient {
 
   subscribe(topics) {
     this.subscribeTopics = topics;
-    // Itera sobre os tópicos e se inscreve em cada um 
     for (const key in topics) {
       let topic = topics[key];
 
@@ -37,7 +33,7 @@ export default class MqttClient {
     this.client.on('message', (topic, payload) => {
       const message = payload.toString();
       //console.log(`Chegou mensagem ${message} no tópico ${topic}`);
-      
+
       if (topic == this.subscribeTopics.sensor1) {
         this.sensor1 = Number(message);
         console.log(`Setou sensor1 = ${this.sensor1}`);
@@ -48,9 +44,11 @@ export default class MqttClient {
       }
     });
   }
-
-  publish(topic, payload){
-    client.publish(topic, payload);
-  }
 }
+
+export default MqttClient;
+
+
+
+
 
