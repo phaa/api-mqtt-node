@@ -5,6 +5,14 @@ class MqttClient {
   constructor() {
     //mqtt://test.mosquitto.org
     this.client = mqtt.connect('mqtt://10.44.1.35');
+    this.sensor1 = 0;
+    this.sensor2 = 0;
+
+    // adicione seus tópicos aqui
+    this.subscribeTopics = [
+      'esp32/humidity03',
+      'esp32/temperature03'
+    ]
   }
 
   initialize() {
@@ -18,11 +26,8 @@ class MqttClient {
     });
   }
 
-  subscribe(topics) {
-    this.subscribeTopics = topics;
-    for (const key in topics) {
-      let topic = topics[key];
-
+  subscribe() {
+    for (const topic of this.subscribeTopics) {
       this.client.subscribe(topic, () => {
         console.log(`Inscrito no tópico: ${topic}`)
       });
@@ -32,15 +37,21 @@ class MqttClient {
   configureMqttLoop() {
     this.client.on('message', (topic, payload) => {
       const message = payload.toString();
+      // descomente se quiser ver todas as mensagens 
       //console.log(`Chegou mensagem ${message} no tópico ${topic}`);
 
-      if (topic == this.subscribeTopics.sensor1) {
-        this.sensor1 = Number(message);
-        console.log(`Setou sensor1 = ${this.sensor1}`);
-      }
-      else if (topic == this.subscribeTopics.sensor2) {
-        this.sensor2 = Number(message);
-        console.log(`Setou sensor2 = ${this.sensor2}`);
+      // crie um caso para entrada de dados em cada tópico
+      switch (topic) {
+        case 'esp32/humidity03': {
+          this.sensor1 = Number(message);
+          console.log(`Umidade = ${this.sensor1}`);
+          break;
+        }
+        case 'esp32/temperature03': {
+          this.sensor2 = Number(message);
+          console.log(`Temperatura = ${this.sensor2}`);
+          break;
+        }
       }
     });
   }
